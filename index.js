@@ -3,6 +3,7 @@ const app = express();
 import cors from "cors";
 import "dotenv/config";
 import usersRoutes from "./routes/users-routes.js";
+import loansRoutes from "./routes/loans-routes.js";
 
 app.use(cors());
 app.use(express.json());
@@ -13,6 +14,7 @@ app.use("/", express.static("public/images"));
 
 // all routes
 app.use("/api/users", usersRoutes);
+app.use("/api/loans", loansRoutes);
 
 
 app.listen(PORT, () => {
