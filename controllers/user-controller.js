@@ -25,9 +25,9 @@ const findOne = async (req, res) => {
 
         // checks for valid id
         if (isNaN(id) || id <= 0) {
-        return res.status(400).json({
-            message: `Inventory with ID ${id} is invalid`,
-        });
+            return res.status(400).json({
+                message: `User with ID ${id} is invalid`,
+            });
         }
 
         // queries database
@@ -59,4 +59,38 @@ const findOne = async (req, res) => {
     }
 };
 
-export { index, findOne }
+// Backend route to get all loans for a single user
+// router.get("/users/:userId/loans", authorization, async (req, res) => {
+const findLoanPerUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // checks for valid id
+        if (isNaN(id) || id <= 0) {
+            return res.status(400).json({
+                message: `User with ID ${id} is invalid`,
+            });
+        }
+
+        // Fetch loans for the user from the database
+        const loans = await knex("loans").where({ user_id: id });
+
+        // Checks if ID is found
+        if (loans.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: `User with ID ${id} not found` 
+            });
+        }
+
+        // Sends first data found of user
+        const loanFound = loans[0];
+
+        res.status(200).json({ success: true, data: loanFound });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Failed to fetch loans" });
+    }
+};
+
+export { index, findOne, findLoanPerUser }

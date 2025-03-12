@@ -7,6 +7,6 @@ router.route("/")
     .get(loanController.index);
 
 // router.route("/:id")
-//     .get(userController.findOne);
+//     .get(loanController.findLoanPerUser );
 
 export default router;

@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.route("/").get(authorization, adminCheck, userController.index);
 
-router.route("/:id").get(userController.findOne);
+router.route("/:id").get(authorization, userController.findOne);
+
+router.route("/:id/loans").get(authorization, userController.findLoanPerUser );
 
 export default router;
