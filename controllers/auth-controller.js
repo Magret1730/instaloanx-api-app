@@ -35,7 +35,7 @@ const validateBodyRequest = (body) => {
 
 const register = async (req, res) => {
     try {
-        // grab the username/password
+        // gets the body request
         const { first_name, last_name, email, password } = req.body;
         // console.log(first_name, last_name, email, password);
 
@@ -95,4 +95,56 @@ const register = async (req, res) => {
     }
 };
 
-export {register};
+const login = async (req, res) => {
+    try {
+        // gets body request
+        const { email, password } = req.body;
+
+        // Check if email and password are provided
+        if (!(email && password)) {
+            return res.status(400).json({ error: 'All fields are compulsory' });
+        };
+
+        // Validate the request body
+        const validationError = validateBodyRequest(req.body);
+        if (validationError) {
+            return res.status(400).json({ message: validationError });
+        }
+
+        // find user in db
+        const existingUser = await knex("users").where({ email }).first();
+
+        // respond if no existing user
+        if (!existingUser) {
+            return res.status(400).json({ error: "Invalid email or password" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, existingUser.password)
+        if (!isPasswordValid) {
+            return res.status(400).json({ error: "Invalid email or password" });
+        }
+
+        // Generate a new token
+        const token = jwt.sign(
+            { id: existingUser.id, email },
+            process.env.JWTSECRET,
+            { expiresIn: '7d' }
+        );
+
+        // Update the user's token in the database
+        await knex("users")
+            .where({ id: existingUser.id })
+            .update({ token });
+
+        // Remove the password field from the response
+        delete existingUser.password;
+
+        // Return the token and user data
+        res.status(200).json({ success: true, token, user: existingUser });
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ error: "Login error, something went wrong" });
+    }
+};
+
+export { register, login };
