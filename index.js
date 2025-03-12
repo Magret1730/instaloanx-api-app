@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth-routes.js";
 
 app.use(cors());
 app.use(express.json());
+// app.use(express.urlencoded({extended: false}));
 
 const PORT = process.env.PORT || 8081;
 

@@ -53,14 +53,14 @@ const register = async (req, res) => {
         // validates existing email
         const existingUser = await knex("users").where({ email }).first();
         if (existingUser) {
-            return res.status(401).json({ error: 'User already exist with this email' });
+            return res.status(401).json({ message: 'User already exist with this email' });
         }
 
         // encrypt password
         const salt = await bcrypt.genSalt(10);
         const encryptedPwd = await bcrypt.hash(password, salt);
         if (!encryptedPwd) {
-            return res.status(500).json({ error: 'Could not encrypt password' });
+            return res.status(500).json({ message: 'Could not encrypt password' });
         }
 
         // creates token for the user
@@ -88,7 +88,8 @@ const register = async (req, res) => {
         delete newUser.password;
 
         // Return data and status to frontend
-        res.status(201).json({ success: true, data: newUser });
+        // res.status(201).json({ success: true, data: newUser });
+        res.status(201).json({ success: true, data: token });
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ error: "Registration error, something went wrong" });
@@ -131,6 +132,8 @@ const login = async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        console.log("Received Token in login:", token);
+
         // Update the user's token in the database
         await knex("users")
             .where({ id: existingUser.id })
@@ -140,7 +143,7 @@ const login = async (req, res) => {
         delete existingUser.password;
 
         // Return the token and user data
-        res.status(200).json({ success: true, token, user: existingUser });
+        res.status(200).json({ success: true, token });
     } catch (error) {
         console.error("Login error:", error);
         res.status(500).json({ error: "Login error, something went wrong" });
