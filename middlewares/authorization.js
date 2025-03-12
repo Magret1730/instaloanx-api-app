@@ -7,8 +7,10 @@ import jwt from 'jsonwebtoken';
 
 export const authorization = async (req, res, next) => {
     try {
+        // finds if the user has authoruzation header in the request body
         const authHeader = req.headers.authorization;
 
+        // splits the token to extract only the token needed
         const token = authHeader.split(" ")[1];
 
         const { id } = jwt.verify(token, process.env.JWTSECRET);

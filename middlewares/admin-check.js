@@ -1,9 +1,8 @@
 // A middleware function that checks if the authenticated user is an admin.
 
 export const adminCheck = async (req, res, next) => {
-    try {
-        // console.log(`User in adminCheck: ${JSON.stringify(req.user)}`);
-        
+    try {  
+        // checks      
         if (req.user && req.user.isAdmin) {
         return next();
         }
