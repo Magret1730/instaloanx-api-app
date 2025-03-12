@@ -10,6 +10,7 @@ export function up(knex) {
             table.string('last_name', 255).notNullable();
             table.string('email', 255).notNullable().unique();
             table.string('password', 255).notNullable();
+            table.string('token', 255).nullable();
             table.boolean('is_admin').defaultTo(false);
             table.timestamp('created_at').defaultTo(knex.fn.now());
             table
