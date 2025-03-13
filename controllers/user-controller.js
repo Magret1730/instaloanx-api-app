@@ -76,17 +76,17 @@ const findLoanPerUser = async (req, res) => {
         const loans = await knex("loans").where({ user_id: id });
 
         // Checks if ID is found
-        if (loans.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: `User with ID ${id} not found` 
-            });
-        }
+        // if (loans.length === 0) {
+        //     return res.status(404).json({
+        //         success: true, //false to true
+        //         message: `User with ID ${id} not found` 
+        //     });
+        // }
 
         // Sends first data found of user
-        const loanFound = loans[0];
+        // const loanFound = loans[0];
 
-        res.status(200).json({ success: true, data: loanFound });
+        res.status(200).json({ success: true, data: loans });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: "Failed to fetch loans" });

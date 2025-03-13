@@ -66,6 +66,8 @@ const register = async (req, res) => {
         // creates token for the user
         const token = jwt.sign(
             { email },
+            { first_name },
+            { last_name} ,
             process.env.JWTSECRET,
             { expiresIn: '7d' }
         );
@@ -127,12 +129,16 @@ const login = async (req, res) => {
 
         // Generate a new token
         const token = jwt.sign(
-            { id: existingUser.id, email },
+            { id: existingUser.id,
+                email,
+                first_name: existingUser.first_name,
+                last_name: existingUser.last_name
+            },
             process.env.JWTSECRET,
             { expiresIn: '7d' }
         );
 
-        console.log("Received Token in login:", token);
+        // console.log("Received Token in login:", token);
 
         // Update the user's token in the database
         await knex("users")
