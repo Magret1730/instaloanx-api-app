@@ -9,14 +9,18 @@ export const authorization = async (req, res, next) => {
     try {
         // finds if the user has authoruzation header in the request body
         const authHeader = req.headers.authorization;
+        // console.log("athHeader authorization", authHeader);
 
         // splits the token to extract only the token needed
         const token = authHeader.split(" ")[1];
+        // console.log("token authorization", token);
 
         const { id } = jwt.verify(token, process.env.JWTSECRET);
+        // console.log("id authorizatiob", id);
 
         // find the user with the 'id' from the jwt payload
         const user = await knex("users").select("id").where({ id }).first();
+        // console.log("user authorizatiob", user);
         if (!user) {
             throw new Error('User not found.');
         }

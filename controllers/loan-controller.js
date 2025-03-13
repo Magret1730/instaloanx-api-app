@@ -18,4 +18,4 @@ const index = async (_req, res) => {
     }
 };
 
-export { index }
+export { index}

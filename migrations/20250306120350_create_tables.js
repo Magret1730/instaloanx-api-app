@@ -23,7 +23,7 @@ export function up(knex) {
             table.decimal('loan_amount', 10, 2).notNullable();
             table.text('loan_purpose').notNullable();
             table
-                .enum('status', ['Pending', 'Approved', 'Rejected', 'Fully Repaid'])
+                .enum('status', ['Pending', 'Active', 'Rejected', 'Fully Repaid'])
                 .defaultTo('Pending');
             table.decimal('remaining_balance', 10, 2).notNullable();
             table.integer('tenor').notNullable();
