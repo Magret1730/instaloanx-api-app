@@ -33,11 +33,89 @@ const validateBodyRequest = (body) => {
     return null;
 };
 
+// const register = async (req, res) => {
+//     try {
+//         // gets the body request
+//         const { first_name, last_name, email, password } = req.body;
+//         // console.log(first_name, last_name, email, password);
+
+//         // Basic checks for empty fields
+//         if (!first_name || !last_name || !email || !password) {
+//             return res.status(400).json({ error: 'All fields are compulsory' });
+//         }
+
+//         // Validate the request body
+//         const validationError = validateBodyRequest(req.body);
+//         if (validationError) {
+//             return res.status(400).json({ message: validationError });
+//         }
+
+//         // validates existing email
+//         const existingUser = await knex("users").where({ email }).first();
+//         if (existingUser) {
+//             return res.status(401).json({ message: 'User already exist with this email' });
+//         }
+
+//         // encrypt password
+//         const salt = await bcrypt.genSalt(10);
+//         const encryptedPwd = await bcrypt.hash(password, salt);
+//         if (!encryptedPwd) {
+//             return res.status(500).json({ message: 'Could not encrypt password' });
+//         }
+
+//         // // creates token for the user
+//         // const token = jwt.sign(
+//         //     { email, first_name, last_name, is_admin: false },
+//         //     process.env.JWTSECRET,
+//         //     { expiresIn: '7d' }
+//         // );
+
+//         // Insert the new user into the database
+//         const [ newUser ] = await knex("users")
+//             .insert({ //insert the new user
+//                 first_name: first_name.toLowerCase(),
+//                 last_name: last_name.toLowerCase(),
+//                 email: email.toLowerCase(),
+//                 password: encryptedPwd,
+//                 is_admin: false,
+//             })
+//             .returning(["id", "first_name", "last_name", "email", "is_admin"]); // Ensures ID is returned
+
+//         // Ensure we have user ID before generating token
+//         if (!newUser || !newUser.id) {
+//             return res.status(500).json({ error: "User registration failed" });
+//         }
+
+//         // creates token for the user
+//         const token = jwt.sign(
+//             { id: newUser.id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, is_admin: newUser.is_admin },
+//             process.env.JWTSECRET,
+//             { expiresIn: '7d' }
+//         );
+
+//         // Fetch the newly inserted user from the database
+//         // const newUser = await knex("users").where({ id: userId }).first();
+//         // console.log("New User in auth-controller", newUser);
+
+//         // Update user record with the token (optional)
+//         await knex("users").where({ id: newUser.id }).update({ token });
+
+//         // Remove the password field from the response
+//         delete newUser.password;
+
+//         // Return data and status to frontend
+//         // res.status(201).json({ success: true, data: newUser });
+//         res.status(201).json({ success: true, data: token, id: userId });
+//     } catch (error) {
+//         console.error("Registration errorrrrr:", error);
+//         res.status(500).json({ error: "Registration error, something went wrong" });
+//     }
+// };
+
 const register = async (req, res) => {
     try {
         // gets the body request
         const { first_name, last_name, email, password } = req.body;
-        // console.log(first_name, last_name, email, password);
 
         // Basic checks for empty fields
         if (!first_name || !last_name || !email || !password) {
@@ -53,7 +131,7 @@ const register = async (req, res) => {
         // validates existing email
         const existingUser = await knex("users").where({ email }).first();
         if (existingUser) {
-            return res.status(401).json({ message: 'User already exist with this email' });
+            return res.status(401).json({ message: 'User already exists with this email' });
         }
 
         // encrypt password
@@ -63,39 +141,45 @@ const register = async (req, res) => {
             return res.status(500).json({ message: 'Could not encrypt password' });
         }
 
-        // creates token for the user
-        const token = jwt.sign(
-            { email, first_name, last_name, is_admin: false },
-            process.env.JWTSECRET,
-            { expiresIn: '7d' }
-        );
-
         // Insert the new user into the database
-        const [ userId ] = await knex("users")
-            .insert({ //insert the new user
+        const [insertedId] = await knex("users")
+            .insert({
                 first_name: first_name.toLowerCase(),
                 last_name: last_name.toLowerCase(),
                 email: email.toLowerCase(),
                 password: encryptedPwd,
                 is_admin: false,
-                token,
             });
 
-        // Fetch the newly inserted user from the database
-        const newUser = await knex("users").where({ id: userId }).first();
-        // console.log("New User in auth-controller", newUser);
+        // Fetch the newly inserted user
+        const newUser = await knex("users").where({ id: insertedId }).first();
+        // console.log("New user in authcontroller.js", newUser);
+        
+        if (!newUser) {
+            return res.status(500).json({ error: "User registration failed" });
+        }
+
+        // Create token for the user
+        const token = jwt.sign(
+            { id: newUser.id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, is_admin: newUser.is_admin },
+            process.env.JWTSECRET,
+            { expiresIn: '7d' }
+        );
+
+        // Update user record with the token (optional)
+        await knex("users").where({ id: newUser.id }).update({ token });
 
         // Remove the password field from the response
         delete newUser.password;
 
         // Return data and status to frontend
-        // res.status(201).json({ success: true, data: newUser });
-        res.status(201).json({ success: true, data: token });
+        res.status(201).json({ success: true, data: { token, id: newUser.id } });
     } catch (error) {
-        console.error("Registration errorrrrr:", error);
+        console.error("Registration error:", error);
         res.status(500).json({ error: "Registration error, something went wrong" });
     }
 };
+
 
 const login = async (req, res) => {
     try {
