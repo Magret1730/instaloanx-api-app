@@ -65,9 +65,7 @@ const register = async (req, res) => {
 
         // creates token for the user
         const token = jwt.sign(
-            { email },
-            { first_name },
-            { last_name} ,
+            { email, first_name, last_name, is_admin: false },
             process.env.JWTSECRET,
             { expiresIn: '7d' }
         );
@@ -85,6 +83,7 @@ const register = async (req, res) => {
 
         // Fetch the newly inserted user from the database
         const newUser = await knex("users").where({ id: userId }).first();
+        // console.log("New User in auth-controller", newUser);
 
         // Remove the password field from the response
         delete newUser.password;
@@ -93,7 +92,7 @@ const register = async (req, res) => {
         // res.status(201).json({ success: true, data: newUser });
         res.status(201).json({ success: true, data: token });
     } catch (error) {
-        console.error("Registration error:", error);
+        console.error("Registration errorrrrr:", error);
         res.status(500).json({ error: "Registration error, something went wrong" });
     }
 };
@@ -132,7 +131,8 @@ const login = async (req, res) => {
             { id: existingUser.id,
                 email,
                 first_name: existingUser.first_name,
-                last_name: existingUser.last_name
+                last_name: existingUser.last_name,
+                is_admin: existingUser.is_admin,
             },
             process.env.JWTSECRET,
             { expiresIn: '7d' }
