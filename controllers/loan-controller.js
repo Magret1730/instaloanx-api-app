@@ -18,6 +18,59 @@ const index = async (_req, res) => {
     }
 };
 
+// Fetch users with their loan history using a LEFT JOIN (in the case some users don't have loans).
+const loanHistory = async (req, res) => {
+    try {
+        const loanHistoryData = await knex('users')
+        .leftJoin('loans', 'users.id', 'loans.user_id')
+        .select(
+            'users.id as userId',
+            'users.first_name as firstName',
+            'users.last_name as lastName',
+            'loans.loan_amount as loanAmount',
+            'loans.created_at as createdAt',
+            'loans.status as status',
+            // 'loans.remaining_balance as remainingBalance'
+        );
+
+        // console.log(loanHistoryData);
+
+        // Group by user
+        const groupedData = loanHistoryData.reduce((acc, curr) => {
+            const { userId, firstName, lastName, loanAmount, createdAt, status, remainingBalance } = curr;
+
+            if (!acc[userId]) {
+                acc[userId] = {
+                userId,
+                firstName,
+                lastName,
+                loans: [],
+                };
+            }
+
+            if (loanAmount !== null) {
+                acc[userId].loans.push({
+                loanAmount,
+                createdAt,
+                status,
+                remainingBalance,
+                });
+            }
+
+            return acc;
+        }, {});
+
+        // console.log(groupedData);
+
+        // Converts the object into an array
+        const result = Object.values(groupedData);
+
+        res.status(200).json({ success: true, data: result });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to fetch loan history' });
+    }
+};
 
 const applyLoan = async (req, res) => {
     try {
@@ -64,4 +117,4 @@ const applyLoan = async (req, res) => {
     }
 };
 
-export { index, applyLoan }
+export { index, applyLoan, loanHistory }

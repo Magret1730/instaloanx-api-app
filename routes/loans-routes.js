@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.route("/").get(authorization, loanController.index);
 router.route("/applyLoan").post(authorization, loanController.applyLoan);
+router.route("/loanHistory").get(authorization, loanController.loanHistory);
 
 // router.route("/:id")
 //     .get(loanController.findLoanPerUser );
