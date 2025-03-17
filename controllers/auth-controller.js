@@ -96,7 +96,7 @@ const register = async (req, res) => {
 
         // Fetch the newly inserted user
         const newUser = await knex("users").where({ id: insertedId }).first();
-        console.log("New user in authcontroller.js", newUser);
+        // console.log("New user in authcontroller.js", newUser);
         
         if (!newUser) {
             return res.status(500).json({ error: "User registration failed" });

@@ -27,8 +27,10 @@ const loanHistory = async (req, res) => {
             'users.id as userId',
             'users.first_name as firstName',
             'users.last_name as lastName',
+            'loans.id as loanId',
             'loans.loan_amount as loanAmount',
             'loans.created_at as createdAt',
+            'loans.updated_at as updatedAt',
             'loans.status as status',
             // 'loans.remaining_balance as remainingBalance'
         );
@@ -37,7 +39,7 @@ const loanHistory = async (req, res) => {
 
         // Group by user
         const groupedData = loanHistoryData.reduce((acc, curr) => {
-            const { userId, firstName, lastName, loanAmount, createdAt, status, remainingBalance } = curr;
+            const { userId, firstName, lastName, loanAmount, createdAt, status, remainingBalance, loanId, updatedAt } = curr;
 
             if (!acc[userId]) {
                 acc[userId] = {
@@ -53,6 +55,8 @@ const loanHistory = async (req, res) => {
                 loanAmount,
                 createdAt,
                 status,
+                loanId,
+                updatedAt,
                 remainingBalance,
                 });
             }
@@ -72,6 +76,7 @@ const loanHistory = async (req, res) => {
     }
 };
 
+// Handles loan application
 const applyLoan = async (req, res) => {
     try {
         const { amount, purpose } = req.body;
@@ -117,4 +122,36 @@ const applyLoan = async (req, res) => {
     }
 };
 
-export { index, applyLoan, loanHistory }
+// Updates loan status
+const updateLoanStatus = async (req, res) => {
+    const { loanId } = req.params;
+    // console.log("Loan ID", loanId);
+    const { status } = req.body;
+    // console.log("Status", status);
+
+    try {
+        // Updates the loan status in the database
+        await knex("loans").where({ user_id: loanId }).update({ status });
+
+        // Fetch loans for the user from the database
+        const updatedLoan = await knex("loans").where({ user_id: loanId }).first();
+
+        // const updatedLoan = Loans.findByIdAndUpdate(
+        //     loanId,
+        //     { status },
+        //     { new: true }
+        // );
+
+        // console.log("Updated loan", updatedLoan);
+
+        if (updatedLoan.length === 0) {
+            return res.status(404).json({ success: false, message: "Loan not found" });
+        }
+
+        res.status(200).json({ success: true, data: updatedLoan });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Failed to update loan status", error: err.message });
+    }
+}
+
+export { index, applyLoan, loanHistory, updateLoanStatus }

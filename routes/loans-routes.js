@@ -4,11 +4,9 @@ import { authorization } from '../middlewares/authorization.js';
 
 const router = express.Router();
 
-router.route("/").get(authorization, loanController.index);
-router.route("/applyLoan").post(authorization, loanController.applyLoan);
-router.route("/loanHistory").get(authorization, loanController.loanHistory);
-
-// router.route("/:id")
-//     .get(loanController.findLoanPerUser );
+router.route("/").get(authorization, loanController.index); // Gets all loans
+router.route("/applyLoan").post(authorization, loanController.applyLoan); // Handles loan application
+router.route("/loanHistory").get(authorization, loanController.loanHistory); // Gets loan history per a single user
+router.put("/:loanId/status", loanController.updateLoanStatus); // UPdates loan status
 
 export default router;
