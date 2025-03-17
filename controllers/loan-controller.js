@@ -131,10 +131,11 @@ const updateLoanStatus = async (req, res) => {
 
     try {
         // Updates the loan status in the database
-        await knex("loans").where({ user_id: loanId }).update({ status });
+        const loanStat = await knex("loans").where({ id: loanId }).update({ status });
+        // console.log("Loan Status", loanStat);
 
-        // Fetch loans for the user from the database
-        const updatedLoan = await knex("loans").where({ user_id: loanId }).first();
+        // Fetch loan data for the user from the database
+        const updatedLoan = await knex("loans").where({ id: loanId }).first();
 
         // const updatedLoan = Loans.findByIdAndUpdate(
         //     loanId,
