@@ -5,10 +5,8 @@ import { authorization } from '../middlewares/authorization.js';
 
 const router = express.Router();
 
-router.route("/").get(authorization, userController.index);
-
-router.route("/:id").get(authorization, userController.findOne);
-
-router.route("/:id/loans").get(authorization, userController.findLoanPerUser );
+router.route("/").get(authorization, userController.index); // Gets all users
+router.route("/:id").get(authorization, userController.findOne); // Gets a single user
+router.route("/:id/loans").get(authorization, userController.findLoanPerUser); // Gets all loans attached to a user
 
 export default router;
