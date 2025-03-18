@@ -121,7 +121,8 @@ const register = async (req, res) => {
                                                         first_name: newUser.first_name,
                                                         last_name: newUser.last_name,
                                                         email: newUser.email,
-                                                        is_admin: newUser.is_admin } });
+                                                        is_admin: newUser.is_admin }
+        });
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ error: "Registration error, something went wrong" });

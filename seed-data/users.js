@@ -8,7 +8,7 @@ const generateToken = (userId) => {
 
 // Function to hash a password
 const hashPassword = async (password) => {
-    const saltRounds = 10; // Number of salt rounds (higher is more secure but slower)
+    const saltRounds = 10; // Number of salt rounds
     return await bcrypt.hash(password, saltRounds);
 };
 
