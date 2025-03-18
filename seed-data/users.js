@@ -33,7 +33,7 @@ export default [
         first_name: 'Admin',
         last_name: 'User',
         email: 'admin@example.com',
-        password: await hashPassword('adminpassword1'),
+        password: await hashPassword('admin1'),
         token: generateToken(3),
         is_admin: true,
     },

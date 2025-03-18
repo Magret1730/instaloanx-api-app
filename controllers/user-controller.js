@@ -62,6 +62,7 @@ const findOne = async (req, res) => {
 // Backend route to get all loans for a single user
 // router.get("/users/:userId/loans", authorization, async (req, res) => {
 // http://localhost:8080/api/v1/users/6/loans
+// the user data should be sent alongside the loan history
 const findLoanPerUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -69,25 +70,28 @@ const findLoanPerUser = async (req, res) => {
         // checks for valid id
         if (isNaN(id) || id <= 0) {
             return res.status(400).json({
+                success: false,
                 message: `User with ID ${id} is invalid`,
             });
         }
 
+        // Fetch user details
+        const user = await knex("users").where({ id }).first();
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: `User with ID ${id} not found`,
+            });
+        }
+
+        // Removes the password field from the responsee
+        delete user.password;
+
         // Fetch loans for the user from the database
         const loans = await knex("loans").where({ user_id: id });
 
-        // Checks if ID is found
-        // if (loans.length === 0) {
-        //     return res.status(404).json({
-        //         success: true, //false to true
-        //         message: `User with ID ${id} not found` 
-        //     });
-        // }
-
-        // Sends first data found of user
-        // const loanFound = loans[0];
-
-        res.status(200).json({ success: true, data: loans });
+        res.status(200).json({ success: true, data: {loans, user}, });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: "Failed to fetch loans" });

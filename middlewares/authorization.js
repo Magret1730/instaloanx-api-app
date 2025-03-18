@@ -7,9 +7,15 @@ import jwt from 'jsonwebtoken';
 
 export const authorization = async (req, res, next) => {
     try {
-        // finds if the user has authoruzation header in the request body
+        // console.log(req);
+        // console.log(req.headers);
+        // finds if the user has authorization header in the request body
         const authHeader = req.headers.authorization;
         // console.log("athHeader authorization", authHeader);
+
+        if (!authHeader) {
+            return res.status(401).json({ message: "No token provided" });
+        }
 
         // splits the token to extract only the token needed
         const token = authHeader.split(" ")[1];

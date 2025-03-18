@@ -25,8 +25,8 @@ export function up(knex) {
             table
                 .enum('status', ['Pending', 'Active', 'Rejected', 'Fully Repaid'])
                 .defaultTo('Pending');
-            table.decimal('remaining_balance', 10, 2).notNullable();
-            table.integer('tenor').notNullable();
+            // table.decimal('remaining_balance', 10, 2).notNullable();
+            // table.integer('tenor').notNullable();
             table.timestamp('created_at').defaultTo(knex.fn.now());
             table
                 .foreign('user_id')
