@@ -25,7 +25,7 @@ export function up(knex) {
             table
                 .enum('status', ['Pending', 'Active', 'Rejected', 'Fully Repaid'])
                 .defaultTo('Pending');
-            // table.decimal('remaining_balance', 10, 2).notNullable();
+            table.decimal('remaining_balance', 10, 2).notNullable();
             // table.integer('tenor').notNullable();
             table.timestamp('created_at').defaultTo(knex.fn.now());
             table
@@ -41,8 +41,8 @@ export function up(knex) {
         .createTable('repayments', (table) => {
             table.increments('id').primary(); 
             table.integer('loan_id').unsigned().notNullable();
-            table.decimal('amount', 10, 2).notNullable();
-            table.timestamp('payment_date').defaultTo(knex.fn.now());
+            table.decimal('amount_paid', 10, 2).notNullable();
+            // table.timestamp('payment_date').defaultTo(knex.fn.now());
             table
                 .foreign('loan_id')
                 .references('id')

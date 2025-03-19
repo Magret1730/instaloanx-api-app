@@ -7,8 +7,19 @@ const index = async (_req, res) => {
         // queries users database
         const data = await knex('users').select('*');
 
+        // console.log(data);
+
+        // Removes the password field from the responsee
+        // delete data.password;
+
+        // Remove the password field from each user object
+        const sanitizedData = data.map(user => {
+            const { password, ...userWithoutPassword } = user; // Destructures to remove password
+            return userWithoutPassword;
+        });
+
         // sends a response with the appropriate status code
-        res.status(200).json({ success: true, data });
+        res.status(200).json({ success: true, data: sanitizedData });
     } catch (err) {
         // Logs the error for debugging
         console.error(err);
@@ -44,6 +55,10 @@ const findOne = async (req, res) => {
 
         // Sends first data found of user
         const userData = usersFound[0];
+        // console.log(userData);
+
+        // Removes the password field from the responsee
+        delete userData.password;
 
          // sends a response with the appropriate status code
         res.json({ success: true, data: userData });
@@ -77,6 +92,7 @@ const findLoanPerUser = async (req, res) => {
 
         // Fetch user details
         const user = await knex("users").where({ id }).first();
+        // console.log(user);
 
         if (!user) {
             return res.status(404).json({
@@ -85,11 +101,11 @@ const findLoanPerUser = async (req, res) => {
             });
         }
 
-        // Removes the password field from the responsee
-        delete user.password;
-
         // Fetch loans for the user from the database
         const loans = await knex("loans").where({ user_id: id });
+
+        // Removes the password field from the responsee
+        delete user.password;
 
         res.status(200).json({ success: true, data: {loans, user}, });
     } catch (err) {
