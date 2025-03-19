@@ -156,8 +156,6 @@ const loanRepayment = async (req, res) => {
             return res.status(404).json({ success: false, message: "Loan not found" });
         }
 
-        // console.log("fetchedLoan:  ", fetchedLoan);
-
         // Validates if the loan belongs to the user
         if (fetchedLoan.user_id !== (parseInt(id))) {
             return res.status(403).json({ success: false, message: "You are not authorized to repay this loan." });
@@ -171,8 +169,6 @@ const loanRepayment = async (req, res) => {
             });
         }
 
-        // console.log("fetchedLoan.remaining_balance", fetchedLoan.remaining_balance);
-
         // Validate the repayment amount
         if (amount_paid <= 0 || amount_paid > fetchedLoan.remaining_balance) {
             return res.status(400).json({
@@ -183,22 +179,16 @@ const loanRepayment = async (req, res) => {
 
         // Update the remaining balance in the loans table
         const newRemainingBalance = fetchedLoan.remaining_balance - amount_paid;
-        // console.log("newRemainingBalance: ", newRemainingBalance);
 
         const updateData = await knex("loans")
             .where({ id: loan_id })
             .update({ remaining_balance: newRemainingBalance });
-        // console.log("updateData", updateData);
-
-
 
         // Insert new repayment record
         const insertData = await knex("repayments").insert({
             loan_id,
             amount_paid,
-            // updated_at: new Date().toISOString(), // Track when the repayment was made
         });
-        // console.log("insertData: ", insertData);
 
         // Update loan status if fully repaid
         if (newRemainingBalance === 0) {
@@ -207,12 +197,8 @@ const loanRepayment = async (req, res) => {
                 .update({ status: "Fully Repaid" });
         }
 
-        // // Updates the loan status in the database
-        // await knex("loans").where({ id: loanId }).update({ status: status });
-
         // Fetch updated loan data
         const updatedLoan = await knex("loans").where({ id: loan_id }).first();
-        console.log(updatedLoan);
 
         // Return success response
         res.status(200).json({
@@ -220,7 +206,6 @@ const loanRepayment = async (req, res) => {
             message: "Repayment successful",
             data: {
                 loan: updatedLoan,
-                // remaining_balance: newRemainingBalance,
                 amount_paid
             },
         });
