@@ -7,8 +7,6 @@ const index = async (_req, res) => {
         // queries users database
         const data = await knex('users').select('*');
 
-        // console.log(data);
-
         // Removes the password field from the responsee
         // delete data.password;
 
@@ -55,7 +53,6 @@ const findOne = async (req, res) => {
 
         // Sends first data found of user
         const userData = usersFound[0];
-        // console.log(userData);
 
         // Removes the password field from the responsee
         delete userData.password;
@@ -92,7 +89,6 @@ const findLoanPerUser = async (req, res) => {
 
         // Fetch user details
         const user = await knex("users").where({ id }).first();
-        // console.log(user);
 
         if (!user) {
             return res.status(404).json({

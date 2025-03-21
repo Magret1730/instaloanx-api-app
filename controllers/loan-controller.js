@@ -2,6 +2,7 @@ import initKnex from "knex";
 import configuration from "../knexfile.js";
 const knex = initKnex(configuration);
 
+// Fetches all loan from db
 const index = async (_req, res) => {
     try {
         // queries users database
@@ -10,7 +11,6 @@ const index = async (_req, res) => {
         // sends a response with the appropriate status code
         res.status(200).json({ success: true, data });
     } catch (err) {
-        // Logs the error for debugging
         console.error(err);
 
         // Sends appropriate response to frontend
@@ -33,7 +33,6 @@ const loanHistory = async (req, res) => {
             'loans.remaining_balance as remainingBalance',
             'loans.updated_at as updatedAt',
             'loans.status as status',
-            // 'loans.remaining_balance as remainingBalance'
         );
 
         // Group by user
@@ -62,8 +61,6 @@ const loanHistory = async (req, res) => {
 
             return acc;
         }, {});
-
-        // console.log(groupedData);
 
         // Converts the object into an array
         const result = Object.values(groupedData);
@@ -133,6 +130,7 @@ const updateLoanStatus = async (req, res) => {
         // Fetch loan data for the user from the database
         const updatedLoan = await knex("loans").where({ id: loanId }).first();
 
+        // checks if there is no loan data returned
         if (updatedLoan.length === 0) {
             return res.status(404).json({ success: false, message: "Loan not found" });
         }
@@ -143,8 +141,7 @@ const updateLoanStatus = async (req, res) => {
     }
 }
 
-// Repays loan
-// router.route("/:id/repayLoan").put(authorization, loanController.loanRepayment); // Repay loan
+// Hanldes loan repayment
 const loanRepayment = async (req, res) => {
     try {
         const {id} = req.params;
@@ -185,7 +182,7 @@ const loanRepayment = async (req, res) => {
             .update({ remaining_balance: newRemainingBalance });
 
         // Insert new repayment record
-        const insertData = await knex("repayments").insert({
+        await knex("repayments").insert({
             loan_id,
             amount_paid,
         });
