@@ -158,7 +158,7 @@ const loanRepayment = async (req, res) => {
             return res.status(403).json({ success: false, message: "You are not authorized to repay this loan." });
         }
 
-        //status should be "active" before "repayment can be done"
+        // status should be "active" before "repayment can be done"
         if (fetchedLoan.status !== "Active") {
             return res.status(400).json({
                 success: false,
@@ -166,8 +166,20 @@ const loanRepayment = async (req, res) => {
             });
         }
 
+        // Converts from string to number
+        let amountPaid = Number(amount_paid);
+        let remainBalance = Number(fetchedLoan.remaining_balance);
+
+        // Validate if amount is less than $50
+        if (amountPaid < 50) {
+            return res.status(400).json({
+                success: false,
+                message: "The least amount to repay is $50.",
+            });
+        }
+
         // Validate the repayment amount
-        if (amount_paid <= 0 || amount_paid > fetchedLoan.remaining_balance) {
+        if (amountPaid <= 0 || amountPaid > remainBalance) {
             return res.status(400).json({
                 success: false,
                 message: "Amount cannot be less than or equal to 0 or greater than the remaining balance.",
@@ -175,7 +187,7 @@ const loanRepayment = async (req, res) => {
         }
 
         // Update the remaining balance in the loans table
-        const newRemainingBalance = fetchedLoan.remaining_balance - amount_paid;
+        const newRemainingBalance = remainBalance - amountPaid;
 
         const updateData = await knex("loans")
             .where({ id: loan_id })
@@ -184,7 +196,7 @@ const loanRepayment = async (req, res) => {
         // Insert new repayment record
         await knex("repayments").insert({
             loan_id,
-            amount_paid,
+            amount_paid: amountPaid,
         });
 
         // Update loan status if fully repaid
@@ -203,7 +215,7 @@ const loanRepayment = async (req, res) => {
             message: "Repayment successful",
             data: {
                 loan: updatedLoan,
-                amount_paid
+                // amount_paid: amountPaid
             },
         });
 
