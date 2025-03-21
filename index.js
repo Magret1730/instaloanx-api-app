@@ -2,6 +2,7 @@ import express from "express";
 const app = express();
 import cors from "cors";
 import "dotenv/config";
+import { appLimiter, authLimiter } from "./middlewares/rate-limit.js";
 import usersRoutes from "./routes/users-routes.js";
 import loansRoutes from "./routes/loans-routes.js";
 import authRoutes from "./routes/auth-routes.js";
@@ -15,9 +16,9 @@ const PORT = process.env.PORT || 8081;
 app.use("/", express.static("public/images"));
 
 // all routes
-app.use("/api/v1/users", usersRoutes);
-app.use("/api/v1/loans", loansRoutes);
-app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", appLimiter, usersRoutes);
+app.use("/api/v1/loans", appLimiter, loansRoutes);
+app.use("/api/v1/auth", authLimiter, authRoutes);
 
 
 app.listen(PORT, () => {

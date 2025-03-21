@@ -96,7 +96,6 @@ const register = async (req, res) => {
 
         // Fetch the newly inserted user
         const newUser = await knex("users").where({ id: insertedId }).first();
-        // console.log("New user in authcontroller.js", newUser);
         
         if (!newUser) {
             return res.status(500).json({ error: "User registration failed" });
@@ -147,7 +146,6 @@ const login = async (req, res) => {
 
         // find user in db
         const existingUser = await knex("users").where({ email }).first();
-        // console.log("existingUser in auth controller", existingUser);
 
         // respond if no existing user
         if (!existingUser) {
@@ -171,22 +169,11 @@ const login = async (req, res) => {
             { expiresIn: '7d' }
         );
 
-        // console.log("Token in auth controller", token);
-
-        // console.log("Received Token in login:", token);
-
         // Update the user's token in the database
         await knex("users").where({ id: existingUser.id }).update({ token });
-        
-        // console.log("UPdateT in auth controller", updateT);
 
         // Remove the password field from the responsee
         delete existingUser.password;
-
-        // console.log("Token in authController", token);
-
-        // Return the token and user data
-        // res.status(200).json({ success: true, token });
 
         // Returns data and status to frontend
         res.status(200).json({ success: true, data: { token,
