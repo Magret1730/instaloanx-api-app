@@ -9,14 +9,13 @@ import authRoutes from "./routes/auth-routes.js";
 
 // app.use(cors());
 const allowedOrigins = [
-    "https://instaloanx.netlify.app", 
-    `http://${process.env.DB_HOST}:${process.env.PORT}`,
+    "https://instaloanx.netlify.app",
+    "http://localhost:8080",
 ];
 
 app.use(
     cors({
         origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or Postman)
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
