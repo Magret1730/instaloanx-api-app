@@ -10,7 +10,7 @@ import authRoutes from "./routes/auth-routes.js";
 // app.use(cors());
 const allowedOrigins = [
     "https://instaloanx.netlify.app",
-    "http://localhost:8080",
+    "http://localhost:5173",
 ];
 
 app.use(
@@ -42,6 +42,10 @@ app.use("/api/v1/auth", authLimiter, authRoutes);
 app.get("/", (req, res) => {
     res.status(200).send("Welcome to InstaloanX API")
 })
+
+app.get('/*', (request, response) => {
+    response.sendFile(path.join(__dirname, '../index.html'));
+});
 
 
 app.listen(PORT, () => {
