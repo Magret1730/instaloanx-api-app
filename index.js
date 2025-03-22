@@ -39,6 +39,10 @@ app.use("/api/v1/users", appLimiter, usersRoutes);
 app.use("/api/v1/loans", appLimiter, loansRoutes);
 app.use("/api/v1/auth", authLimiter, authRoutes);
 
+app.get("/", (req, res) => {
+    res.status(200).send("Welcome to InstaloanX API")
+})
+
 
 app.listen(PORT, () => {
     console.log(`Express server listening on ${PORT}`);
