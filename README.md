@@ -2,7 +2,7 @@
 
 ## Overview
 
-The InstaLoanX backend is a **RESTful API** built with **Express.js** and **MySQL**. It powers the loan management system, enabling users to apply for loans, track their application status, and make repayments. It also provides an admin dashboard for managing loan applications and repayments.
+The InstaLoanX backend is a **RESTful API** built with **Express.js**, **Knex.js** and **MySQL**. It powers the loan management system, enabling users to apply for loans, track their application status, and make repayments. It also provides an admin dashboard for managing loan applications and repayments.
 
 ---
 
@@ -34,7 +34,7 @@ The InstaLoanX backend is a **RESTful API** built with **Express.js** and **MySQ
 
 ## Database
 
-![](./readme-images/final_db.png)
+![](./public/images/final_db.png)
 
 ---
 
@@ -369,16 +369,36 @@ The backend provides the following RESTful API endpoints:
    `npm install`
 3. Set up the database:
    - Create a MySQL database and update the `.env` file with your database credentials using `.env_example` file.
-   - Run migrations using migration tables and mock seed data provided:
+   - Run migrations using migration tables and mock seed data provided. Run this on terminal:
      ` npm run migrate`
      `npm run seed`
 4. Start the server:
    `npm run start`
-5. The app will be available at `http://localhost:8081`
+5. The app will be available at `http://localhost:8081` or on whatever port you use.
+
+---
+
+### Figma Designs
+
+**[Link To InstaloanX Design On Figma](https://www.figma.com/design/u2gKS7ifPagYso0AEHiyUq/InstaloanX?node-id=0-1&t=9CRpjgKD7NpSBltD-1)**
+
+---
+
+## Quick Walkthrough
+
+For a detailed demonstration of InstaLoanX, check out the [Walkthrough Video](https://youtu.be/kvF3to6XBpQ)
+
+---
 
 ## Deployment
 
-The backend is deployed on [Heroku](https://heroku.com). You can access the live API here: [Inserting Live API Link]
+InstaLoanX is deployed and accessible online. Here’s how the deployment is structured:
+
+- **Frontend**: Hosted on [Netlify](https://instaloanx.netlify.app/)
+- **Backend**: Hosted on [Heroku](https://instaloanx-3b9381667c7d.herokuapp.com/)
+
+
+You can access the live application here: [InstaloanX Application](https://instaloanx.netlify.app/)
 
 ---
 
@@ -395,18 +415,18 @@ We welcome contributions from the community! Whether you're fixing a bug, adding
 2. **Clone the Repository**:
 
    - Clone your forked repository to your local machine:
-     ```bash
+     ```
      git clone https://github.com/Magret1730/instaloanx-api-app.git
      ```
    - Navigate to the project directory:
-     ```bash
+     ```
      cd instaloanx-api-app
      ```
 
 3. **Create a New Branch**:
 
    - Create a new branch for your feature or bug fix:
-     ```bash
+     ```
      git checkout -b feature/your-feature-name
      ```
    - Use a descriptive branch name that reflects the changes you're making.
@@ -420,18 +440,18 @@ We welcome contributions from the community! Whether you're fixing a bug, adding
 5. **Commit Your Changes**:
 
    - Stage your changes:
-     ```bash
+     ```
      git add .
      ```
    - Commit your changes with a clear and descriptive message:
-     ```bash
+     ```
      git commit -m "Add your commit message here"
      ```
 
 6. **Push Your Changes**:
 
    - Push your changes to your forked repository:
-     ```bash
+     ```
      git push origin feature/your-feature-name
      ```
 

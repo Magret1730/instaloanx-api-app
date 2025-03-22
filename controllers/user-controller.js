@@ -72,9 +72,6 @@ const findOne = async (req, res) => {
 };
 
 // Backend route to get all loans for a single user
-// router.get("/users/:userId/loans", authorization, async (req, res) => {
-// http://localhost:8080/api/v1/users/6/loans
-// the user data should be sent alongside the loan history
 const findLoanPerUser = async (req, res) => {
     try {
         const { id } = req.params;
