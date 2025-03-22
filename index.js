@@ -44,6 +44,8 @@ app.get("/", (req, res) => {
 })
 
 app.get('/*', (request, response) => {
+    console.log(__dirname);
+    console.log("Response: ", response);
     response.sendFile(path.join(__dirname, '../index.html'));
 });
 
