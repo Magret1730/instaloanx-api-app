@@ -7,7 +7,27 @@ import usersRoutes from "./routes/users-routes.js";
 import loansRoutes from "./routes/loans-routes.js";
 import authRoutes from "./routes/auth-routes.js";
 
-app.use(cors());
+// app.use(cors());
+const allowedOrigins = [
+    "https://instaloanx.netlify.app", 
+    `http://${process.env.DB_HOST}:${process.env.PORT}`,
+];
+
+app.use(
+    cors({
+        origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or Postman)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("CORS not allowed"));
+        }
+        },
+        methods: "GET,POST,PUT,DELETE",
+        allowedHeaders: "Content-Type,Authorization",
+        credentials: true,
+    })
+);
 app.use(express.json());
 // app.use(express.urlencoded({extended: false}));
 
