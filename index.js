@@ -41,14 +41,7 @@ app.use("/api/v1/auth", authLimiter, authRoutes);
 
 app.get("/", (req, res) => {
     res.status(200).send("Welcome to InstaloanX API")
-})
-
-app.get('*', (request, response) => {
-    console.log(__dirname);
-    console.log("Response: ", response);
-    response.sendFile(path.join(__dirname, '../index.html'));
 });
-
 
 app.listen(PORT, () => {
     console.log(`Express server listening on ${PORT}`);
