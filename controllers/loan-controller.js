@@ -98,6 +98,14 @@ const applyLoan = async (req, res) => {
             return res.status(400).json({ message: "Invalid loan purpose" });
         }
 
+        if (Number(amount) < 50) {
+            return res.status(400).json({message: "The minimum loan amount is $50."});
+        }
+
+        if (Number(amount) > 1000000) {
+            return res.status(400).json({message: "The maximum loan amount is $1,000,000."});
+        }
+
         // Insert loan application
         const [newLoanId] = await knex("loans")
             .insert({
