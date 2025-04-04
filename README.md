@@ -359,7 +359,7 @@ The backend provides the following RESTful API endpoints:
 
 ---
 
-## Quick Start
+## Installation Guide
 
 1. Clone the repository:
    ```
@@ -370,11 +370,12 @@ The backend provides the following RESTful API endpoints:
 3. Set up the database:
    - Create a MySQL database and update the `.env` file with your database credentials using `.env_example` file.
    - Run migrations using migration tables and mock seed data provided. Run this on terminal:
-     ` npm run migrate`
+     `npm run migrate`
      `npm run seed`
 4. Start the server:
    `npm run start`
 5. The app will be available at `http://localhost:8081` or on whatever port you use.
+6. To get the frontend running, follow the [Frontend Readme](https://github.com/Magret1730/instaloanx-app) installation guide
 
 ---
 
