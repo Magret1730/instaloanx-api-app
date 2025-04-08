@@ -3,6 +3,7 @@ import configuration from "../knexfile.js";
 const knex = initKnex(configuration);
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { sendMail } from "../utils/mailer.js";
 
 const validateRegisterRequest = (body) => {
     const { first_name, last_name, email, password } = body;
@@ -50,6 +51,16 @@ const validateLoginRequest = (body) => {
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{4,}$/;
     if (!passwordRegex.test(password)) {
         return "Password should contain at least one letter and one number, and be at least 4 characters long";
+    }
+
+    return null;
+};
+
+const validateEmail = (email) => {
+    // Validate email format
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!emailRegex.test(email)) {
+        return "Invalid Email Format. Example of valid format: user@example.com ";
     }
 
     return null;
@@ -103,9 +114,13 @@ const register = async (req, res) => {
 
         // Create token for the user
         const token = jwt.sign(
-            { id: newUser.id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, is_admin: newUser.is_admin },
+            { id: newUser.id, 
+                email: newUser.email,
+                // first_name: newUser.first_name,
+                // last_name: newUser.last_name,
+                is_admin: newUser.is_admin },
             process.env.JWTSECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '15m' }
         );
 
         // Updates user record with the token
@@ -161,12 +176,12 @@ const login = async (req, res) => {
         const token = jwt.sign(
             { id: existingUser.id,
                 email,
-                first_name: existingUser.first_name,
-                last_name: existingUser.last_name,
+                // first_name: existingUser.first_name,
+                // last_name: existingUser.last_name,
                 is_admin: existingUser.is_admin,
             },
             process.env.JWTSECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '15m' }
         );
 
         // Update the user's token in the database
@@ -185,6 +200,113 @@ const login = async (req, res) => {
     } catch (error) {
         console.error("Login error:", error);
         res.status(500).json({ error: "Login error, something went wrong" });
+    }
+};
+
+// Function to get link in email
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        if (!(email)) {
+            return res.status(400).json({ error: 'Email is required' });
+        };
+
+        // Validate the request body
+        const validationError = validateEmail(email);
+        if (validationError) {
+            return res.status(400).json({ message: validationError });
+        }
+
+        // find user in db
+        const existingUser = await knex("users").where({ email }).first();
+
+        // respond if no existing user
+        if (!existingUser) {
+            return res.status(400).json({ error: "User not found" });
+        }
+
+        // Generate a new token
+        const token = jwt.sign(
+            { id: existingUser.id},
+            process.env.RESET_PASSWORD_KEY,
+            { expiresIn: '15m' }
+        );
+
+        // Update the user's token in the database
+        await knex("users").where({ id: existingUser.id }).update({ token: "" });
+
+        // Send the email
+        const sendEmail = await sendMail({
+            to: email,
+            subject: 'InstaLoanX Password Reset',
+            html: `
+                    <h2>Click the following link to reset your password:</h2>
+                    <h2>The link expires in 15 minutes</h2>
+                    <p>${process.env.FRONTEND_URL}/resetPassword/${token}</p>
+
+                    <p>If you did not request this, please ignore this email.</p>
+                    <p>Thank you!</p>
+                    <p>InstaLoanX Team</p>
+                `,
+        });
+
+        if (sendEmail) {
+            return res.status(200).json({ message: 'Email has been sent, kindly follow the instructions' });
+        } else {
+            return res.status(500).json({ error: 'Failed to send email' });
+        }
+
+    } catch (error) { 
+        console.error('Error in forgotPassword:', error.message);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// Function to resetPassword
+export const resetPassword = async (req, res) => {
+    const { token, newPassword, confirmPassword } = req.body;
+
+    if (!token || !newPassword || !confirmPassword) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    try {
+        // verifies token
+        const decoded = jwt.verify(token, process.env.RESET_PASSWORD_KEY);
+
+        // find user in db
+        const user = await knex("users").where({ id: decoded.id }).first();
+
+        // respond if no user
+        if (!user) {
+            return res.status(400).json({ error: "User does not exist" });
+        }
+
+        // Validate password
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{4,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            return "Password should contain at least one letter and one number, and be at least 4 characters long";
+        } else if (newPassword !== confirmPassword) {
+            return res.status(400).json({ error: "Passwords do not match" });
+        }
+
+        // Encrypt the new password
+        const salt = await bcrypt.genSalt(10);
+        const encryptedPwd = await bcrypt.hash(newPassword, salt);
+        if (!encryptedPwd) {
+            return res.status(500).json({ message: 'Could not encrypt password' });
+        }
+
+        // Update the user's token in the database
+        await knex("users").where({ id: user.id }).update({
+            password: encryptedPwd,
+            token: ''
+        });
+
+        return res.status(200).json({ message: 'Your password has been changed. Please log in with your new password.' });
+    } catch (error) {
+        res.status(401).json({ error: 'Incorrect or expired token. Please request a new one.' });
     }
 };
 
